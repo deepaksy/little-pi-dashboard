@@ -33,7 +33,6 @@ const baseUrl = import.meta.env.PUBLIC_BASE_URL;
 		try {
 			const response = await fetch(BASE_URL, { method: "GET" });
 			const res = await response.json();
-			console.log(res);
 			return res;
 		} catch (e) {
 			console.error(e);

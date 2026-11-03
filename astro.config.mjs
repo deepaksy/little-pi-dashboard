@@ -4,8 +4,8 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://deepaksy.github.io',
-	base: '/little-pi-dashboard',
+	site: 'https://littlepi.iamengineer.in',
+	base: '/',
 	vite: {
 		plugins: [tailwindcss()],
 	},

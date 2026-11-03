@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async () => {
-  const backendUrl = import.meta.env.BACKEND_URL || 'http://localhost:3000';
+  const backendUrl = import.meta.env.PUBLIC_BASE_URL;
 
   try {
     const response = await fetch(`${backendUrl}/api/health`, {

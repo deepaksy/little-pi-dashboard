@@ -1,111 +1,57 @@
 ---
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/starwind/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/starwind/card";
 import background from '../assets/background.svg';
 import Layout from "@/layouts/Layout.astro";
 
-const baseUrl = import.meta.env.PUBLIC_BASE_URL;
+// Fallback to empty string if undefined so it doesn't break into "/api/health" unexpectedly
+const baseUrl = import.meta.env.PUBLIC_BASE_URL || "";
 ---
-<div id="container">
-	<img id="background" src={background.src} alt="" fetchpriority="high" />
-	<main>
-		<section id="hero">
-			<Card class="w-[360px]">
-  <CardHeader>
-    <CardTitle class="font-extrabold">Little Pi Status</CardTitle>
-    <CardDescription>Your Backend API Status Running on your Little Pi</CardDescription>
-  </CardHeader>
-  <CardContent class="flex flex-col gap-4">
-	<div>
-		<h1 id="health-status" class="text-2xl italic font-bold">Loading status...</h1>
-	</div>
-  </CardContent>
-</Card>
-		</section>
-	</main>
 
-</div>
-
-
+<Layout title="Little Pi Status">
+    <div id="container">
+        <img id="background" src={background.src} alt="" fetchpriority="high" />
+        <main>
+            <section id="hero">
+                <Card class="w-[360px]">
+                    <CardHeader>
+                        <CardTitle class="font-extrabold">Little Pi Status</CardTitle>
+                        <CardDescription>Your Backend API Status Running on your Little Pi</CardDescription>
+                    </CardHeader>
+                    <CardContent class="flex flex-col gap-4">
+                        <div>
+                            <h1 id="health-status" class="text-2xl italic font-bold">Loading status...</h1>
+                        </div>
+                    </CardContent>
+                </Card>
+            </section>
+        </main>
+    </div>
+</Layout>
 
 <script is:inline define:vars={{ baseUrl }}>
-	const getData = async () => {
-		const BASE_URL = baseUrl+ "/api/health";		
-		try {
-			const response = await fetch(BASE_URL, { method: "GET" });
-			const res = await response.json();
-			return res;
-		} catch (e) {
-			console.error(e);
-			return { message: "Error Occurred" };
-		}
-	}
-	
-	// Execute the async function properly and update the UI
-	getData().then((response) => {
-		
-		// Update the DOM with the health message
-		const heading = document.getElementById('health-status');
-		if (heading) {
-			heading.textContent = response.message;
-		}
-	});
+    const fetchStatus = async () => {
+        const heading = document.getElementById('health-status');
+        if (!heading) return;
 
-	setInterval(async()=> {
-		const heading = document.getElementById('health-status');
-		if (heading) {
-			heading.textContent = 'Loading status...';
-		}
-		await getData().then((response) => {
-		
-		// Update the DOM with the health message
-		const heading = document.getElementById('health-status');
-		if (heading) {
-			heading.textContent = response.message;
-		}
-	});
-	},10000)
+        try {
+            const response = await fetch(`/api/health`, { method: "GET" });
+            if (!response.ok) throw new Error("Network response was not ok");
+            
+            const res = await response.json();
+            heading.textContent = res.message || "Online";
+        } catch (e) {
+            console.error(e);
+            heading.textContent = "Offline / Error Occurred";
+        }
+    };
+
+    // Run immediately on load
+    fetchStatus();
+
+    // Poll every 10 seconds, showing loading state right before fetching
+    setInterval(async () => {
+        const heading = document.getElementById('health-status');
+        if (heading) heading.textContent = 'Checking status...';
+        await fetchStatus();
+    }, 10000);
 </script>
-
-
-<style>
-	#background {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		z-index: -1;
-		filter: blur(100px);
-	}
-
-	#container {
-		font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
-		height: 100%;
-	}
-
-	main {
-		height: 100%;
-		display: flex;
-		justify-content: center;
-	}
-
-	#hero {
-		display: flex;
-		align-items: start;
-		flex-direction: column;
-		justify-content: center;
-		padding: 16px;
-	}
-
-	@media screen and (max-width: 768px) {
-		#container {
-			display: flex;
-			flex-direction: column;
-		}
-
-		#hero {
-			display: block;
-			padding-top: 10%;
-		}
-	}
-</style>

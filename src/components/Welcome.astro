@@ -29,6 +29,7 @@ const baseUrl = import.meta.env.PUBLIC_BASE_URL;
 <script is:inline define:vars={{ baseUrl }}>
 	const getData = async () => {
 		const BASE_URL = baseUrl+ "/api/health";
+		console.log(baseUrl)
 		
 		try {
 			const response = await fetch(BASE_URL, { method: "GET" });
